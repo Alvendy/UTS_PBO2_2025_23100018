@@ -1,76 +1,77 @@
 package com.mycompany.mavenproject3;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
 
-public class ProductForm extends JFrame {
-    private JTable drinkTable;
-    private DefaultTableModel tableModel;
-    private JTextField codeField;
-    private JTextField nameField;
-    private JComboBox<String> categoryField;
-    private JTextField priceField;
-    private JTextField stockField;
-    private JButton saveButton;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
-    public ProductForm() {
-        List<Product> products = new ArrayList<>();
-        products.add(new Product(1, "P001", "Americano", "Coffee", 18000, 10));
-        products.add(new Product(2, "P002", "Pandan Latte", "Coffee", 15000, 8));
-        
-        setTitle("WK. Cuan | Stok Barang");
-        setSize(600, 450);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+public class Mavenproject3 extends JFrame implements Runnable {
+    private String text;
+    private int x;
+    private int width;
+    private BannerPanel bannerPanel;
+    private JButton addProductButton;
+
+    public Mavenproject3(String text) {
+        this.text = text;
+        setTitle("WK. STI Chill");
+        setSize(600, 150);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Panel form pemesanan
-        JPanel formPanel = new JPanel();
-        formPanel.setLayout(new GridLayout(6, 2, 10, 10)); // Grid layout for better alignment
+        // Panel teks berjalan
+        bannerPanel = new BannerPanel();
+        add(bannerPanel, BorderLayout.CENTER);
 
-        formPanel.add(new JLabel("Kode Barang:"));
-        codeField = new JTextField();
-        formPanel.add(codeField);
+        // Tombol "Kelola Produk"
+        JPanel bottomPanel = new JPanel();
+        addProductButton = new JButton("Kelola Produk");
+        bottomPanel.add(addProductButton);
+        add(bottomPanel, BorderLayout.SOUTH);
         
-        formPanel.add(new JLabel("Nama Barang:"));
-        nameField = new JTextField();
-        formPanel.add(nameField);
-        
-        formPanel.add(new JLabel("Kategori:"));
-        categoryField = new JComboBox<>(new String[]{"Coffee", "Dairy", "Juice", "Soda", "Tea"});
-        formPanel.add(categoryField);
-        
-        formPanel.add(new JLabel("Harga Jual:"));
-        priceField = new JTextField();
-        formPanel.add(priceField);
-        
-        formPanel.add(new JLabel("Stok Tersedia:"));
-        stockField = new JTextField();
-        formPanel.add(stockField);
-        
-        saveButton = new JButton("Simpan");
-        formPanel.add(saveButton);
-        
-        // Table for displaying products
-        tableModel = new DefaultTableModel(new String[]{"Kode", "Nama", "Kategori", "Harga Jual", "Stok"}, 0);
-        drinkTable = new JTable(tableModel);
-        loadProductData(products);
-        
-        // Add components to the frame
-        add(formPanel, BorderLayout.NORTH);
-        add(new JScrollPane(drinkTable), BorderLayout.CENTER); // Add table with scroll pane
+        addProductButton.addActionListener(e -> {
+            new ProductForm().setVisible(true);
+        });
 
         setVisible(true);
+
+        Thread thread = new Thread(this);
+        thread.start();
     }
 
-    private void loadProductData(List<Product> productList) {
-        for (Product product : productList) {
-            tableModel.addRow(new Object[]{
-                product.getCode(), product.getName(), product.getCategory(), product.getPrice(), product.getStock()
-            });
+    class BannerPanel extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.setColor(Color.RED);
+            g.setFont(new Font("Arial", Font.BOLD, 18));
+            g.drawString(text, x, getHeight() / 2);
         }
+    }
+
+    @Override
+    public void run() {
+        width = getWidth();
+        while (true) {
+            x += 5;
+            if (x > width) {
+                x = -getFontMetrics(new Font("Arial", Font.BOLD, 18)).stringWidth(text);
+            }
+            bannerPanel.repaint();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        new Mavenproject3("Menu yang tersedia: Americano | Pandan Latte | Americano | Pandan Latte | Aren Latte | Matcha Frappucino | Jus Apel");
     }
 }
